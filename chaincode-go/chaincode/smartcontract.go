@@ -40,11 +40,11 @@ type Booking struct{
 
 type User struct{
 	UID				string		`json:"uid"`			// uid 
-	Authorization   string		`json:"authorization"`  // 권한 ( 관리자 : admin, 사용자 : user) 
+	// Authorization   string		`json:"authorization"`  // 권한 ( 관리자 : admin, 사용자 : user) 
 	BookingList		[]string	`json:"BookingList"`    // 예약 내역 
 }
 
-// QueryResult structure used for handling result of query
+// 모든 숙소 구조체
 type QueryResult struct {
 	Key    string `json:"Key"`
 	Record *Accommodation
@@ -52,40 +52,7 @@ type QueryResult struct {
 
 // 회원가입
 
-// 모든 숙소 조회 
-func (s *SmartContract) GetAllAccommodations(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
-	// range query with empty string for startKey and endKey does an
-	// open-ended query of all assets in the chaincode namespace.
-	startKey := "accommodation1"
-    endKey := "accommodation999"
-	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
 
-	accommodations := []QueryResult{}
-	// var accommodations []*Accommodation
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		
-		if err != nil {
-			return nil, err
-		}
-		accommodation := new(Accommodation)
-		_ = json.Unmarshal(queryResponse.Value, accommodation)
-		queryResult := QueryResult{Key: queryResponse.Key, Record: accommodation}
-		accommodations = append(accommodations, queryResult)
-		// var accommodation Accommodation
-		// err = json.Unmarshal(queryResponse.Value, &accommodation)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// accommodations = append(accommodations, &accommodation)
-	}
-
-	return accommodations, nil
-}
 // 관리자
 // 숙소 등록 함수 Register - 관리자가 숙소를 등록(uid, auth, accommodation,room, price, locate 등) 
 func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, accommodation string, room string, price int, locate string  ) error {
@@ -121,6 +88,7 @@ func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContext
 		Price           : price,
 		Locate			: locate,
 		Available		: false,
+		BookingList		: make([]string,0),
 	}
 
 	assetJSON, err = json.Marshal(accommodationInfo)
@@ -135,6 +103,7 @@ func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContext
 // 숙소 수정 함수 update - 관리자가 숙소 정보를 수정(가격, 위치)
 // UpdateAsset updates an existing asset in the world state with provided parameters.
 func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, aid string,accommodation string, room string,  price int, locate string) error {
+	
 	// 접근제어 (AccessControl) : 관리자만 접근 가능
 	if authorization != "admin"{
 		return fmt. Errorf("Caller is not admin")
@@ -195,7 +164,40 @@ func (s *SmartContract) AccommodationExists(ctx contractapi.TransactionContextIn
 	return assetJSON != nil, nil
 }
 
+// 모든 숙소 조회 . null값일 경우 json input 오류남. 이부분 처리하기
+func (s *SmartContract) GetAllAccommodations(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
+	// range query with empty string for startKey and endKey does an
+	// open-ended query of all assets in the chaincode namespace.
+	startKey := "accommodation1"
+    endKey := "accommodation999"
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
 
+	accommodations := []QueryResult{}
+	// var accommodations []*Accommodation
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		
+		if err != nil {
+			return nil, err
+		}
+		accommodation := new(Accommodation)
+		_ = json.Unmarshal(queryResponse.Value, accommodation)
+		queryResult := QueryResult{Key: queryResponse.Key, Record: accommodation}
+		accommodations = append(accommodations, queryResult)
+		// var accommodation Accommodation
+		// err = json.Unmarshal(queryResponse.Value, &accommodation)
+		// if err != nil {
+		// 	return nil, err
+		// }
+		// accommodations = append(accommodations, &accommodation)
+	}
+
+	return accommodations, nil
+}
 // 사용자 
 // 예약 함수 booking - 사용자가 숙소를 예약(uid, 방문자명,aid, 숙소, 호수, 체크인/체크아웃 , 결제방식 )
 func (s *SmartContract) Booking(ctx contractapi.TransactionContextInterface, uid string, authorization string, guest string, aid string, myaccommodation string, room string, checkin string,  checkout string, price int, payment string ) error {
@@ -203,21 +205,20 @@ func (s *SmartContract) Booking(ctx contractapi.TransactionContextInterface, uid
 	if authorization != "user"{
 		return fmt. Errorf("Caller is not user")
 	}
-	// 숙소 아이디 자동 생성	
-	assetJSON, err := ctx.GetStub().GetState("BOOKING")
+	// 예약 아이디 자동 생성	
+	bookingJSON, err := ctx.GetStub().GetState("BOOKCOUNT")
 	if err != nil {
 		return fmt.Errorf("failed to read from world state: %v", err)
 	}
 
-	if assetJSON == nil {
-		ctx.GetStub().PutState("BOOKING", []byte("0"))
+	if bookingJSON == nil {
+		ctx.GetStub().PutState("BOOKCOUNT", []byte("0"))
 	}
 
-	bookingINT,_ := strconv.Atoi(string(assetJSON))
+	bookingINT,_ := strconv.Atoi(string(bookingJSON))
 	bookingINT += 1
 	bookingID := "booking"+strconv.Itoa(bookingINT)
-	ctx.GetStub().PutState("BOOKCOUNT", []byte(strconv.Itoa(bookingINT)))
-
+	
 	// 예약 데이터 생성
 	booking := Booking{
 		BID				: bookingID,
@@ -231,36 +232,45 @@ func (s *SmartContract) Booking(ctx contractapi.TransactionContextInterface, uid
 		Price			: price,
 		Payment			: payment,
 	}
-
-	assetJSON, err = json.Marshal(booking)
+	
+	bookingJSON, err = json.Marshal(booking)
 	if err != nil {
-		return err
+		return fmt.Errorf("error1: %v", err)
 	}
+	ctx.GetStub().PutState("BOOKCOUNT", []byte(strconv.Itoa(bookingINT)))
 
 	// 예약한 숙소의 BookingList에 bid 추가
-	AccommodationJSON, _ := ctx.GetStub().GetState(aid)
+	accommodationJSON, _ := ctx.GetStub().GetState(aid)
 	var accommodation Accommodation
-	err = json.Unmarshal(AccommodationJSON, &accommodation)
+	err = json.Unmarshal(accommodationJSON, &accommodation)
 	if err != nil{
-		return err
+		return fmt.Errorf("error2: %v", err)
 	}
 	accommodation.BookingList = append(accommodation.BookingList, bookingID)
+	accommodationJSON, err = json.Marshal(accommodation)
+	ctx.GetStub().PutState(aid, accommodationJSON)
 
 	// 사용자 데이터에 있는 BookingList에 bookingID를 추가 
-	UserJSON, _ := ctx.GetStub().GetState(uid)
+	userJSON, _ := ctx.GetStub().GetState(uid)
 	var user User
-	err = json.Unmarshal(UserJSON, &user)
-	if err != nil{
-		return err
-	}
-	user.BookingList = append(user.BookingList, bookingID)
+	if userJSON != nil { // 사용자 정보 존재시
+		err = json.Unmarshal(userJSON, &user) // json을 구조체로 변경하여 user에 넣기 
+		if err != nil{
+			return fmt.Errorf("error3: %v", err)
+		}		
+	}	
+	user.UID = uid // User 객체 uid값 넣기
+	user.BookingList = append(user.BookingList, bookingID)  // 예약 번호 넣기
+	userJSON, err = json.Marshal(user) 
+	ctx.GetStub().PutState(uid, userJSON)
 
-	return ctx.GetStub().PutState(bookingID, assetJSON)
+	// 예약 정보 넣기
+	return ctx.GetStub().PutState(bookingID, bookingJSON)
 }
 
 
-// 예약 정보 수정 함수 update - 예약 정보수정(방문자명, 결제방식) * 가능하다면 체크인/체크아웃날짜 변경
-func (s *SmartContract) UpdateBooking(ctx contractapi.TransactionContextInterface, bid string, guest string, aid string, accommodation string, room string, checkin string, checkout string, payment string  ) error {
+// 예약 정보 수정 함수 update - 예약 정보수정(방문자 이름만 가능) * 가능하다면 체크인/체크아웃날짜 변경
+func (s *SmartContract) UpdateBooking(ctx contractapi.TransactionContextInterface, bid string,uid string, guest string, aid string, accommodation string, room string, checkin string, checkout string, price int, payment string  ) error {
 	exists, err := s.BookingExists(ctx, bid)
 	if err != nil {
 		return err
@@ -272,12 +282,14 @@ func (s *SmartContract) UpdateBooking(ctx contractapi.TransactionContextInterfac
 	// overwriting original asset with new asset
 	booking := Booking{
 		BID				: bid,
+		UID				: uid,
 		Guest			: guest,
 		AID             : aid,
 		Accommodation	: accommodation,
 		Room            : room,
 		CheckIn         : checkin,
 		CheckOut		: checkout,
+		Price 			: price,
 		Payment			: payment,
 	}
 
@@ -292,12 +304,37 @@ func (s *SmartContract) UpdateBooking(ctx contractapi.TransactionContextInterfac
 }
 
 // 예약 취소 함수 cancel/delete - 예약 취소
-func (s *SmartContract) DeleteBooking(ctx contractapi.TransactionContextInterface, bid string, uid string) error {
+func (s *SmartContract) DeleteBooking(ctx contractapi.TransactionContextInterface, bid string, uid string, aid string) error {
 
 	// 예약정보 해당 예약 삭제
 	// 사용자 BookingList에 해당 예약 삭제
-	// 숙소 정보 BookingList에 해당 예약 삭제
+	userJSON, err := ctx.GetStub().GetState(uid)
+	var user User
+	if userJSON != nil { // 사용자 정보 존재시
+		err = json.Unmarshal(userJSON, &user) // json을 구조체로 변경하여 user에 넣기 
+		if err != nil{
+			return fmt.Errorf("error3: %v", err)
+		}		
+	}	
+	user.UID = uid // User 객체 uid값 넣기
 	
+	user.BookingList = DeleteBid(user.BookingList, bid)
+	// user.BookingList = user.BookingList.remove(bid)
+	userJSON, err = json.Marshal(user)
+	ctx.GetStub().PutState(uid, userJSON)
+
+	// 숙소 정보 BookingList에 해당 예약 삭제
+	accommodationJSON, _ := ctx.GetStub().GetState(aid)
+	var accommodation Accommodation
+	err = json.Unmarshal(accommodationJSON, &accommodation)
+	if err != nil{
+		return err
+	}
+	accommodation.BookingList = DeleteBid(accommodation.BookingList, bid)
+	// accommodation.BookingList = accommodation.BookingList.remove(bid)
+	accommodationJSON, err = json.Marshal(accommodation)
+	ctx.GetStub().PutState(aid, accommodationJSON)
+
 	// 예약 확인
 	exists, err := s.BookingExists(ctx, bid)
 	if err != nil {
@@ -309,8 +346,6 @@ func (s *SmartContract) DeleteBooking(ctx contractapi.TransactionContextInterfac
 
     // 예약리스트에서 삭제 / 사용자 
 	return ctx.GetStub().DelState(bid)
-
-
 }
 // 예약 존재 여부 확인 함수
 func (s *SmartContract) BookingExists(ctx contractapi.TransactionContextInterface, bid string) (bool, error) {
@@ -335,26 +370,31 @@ func (s *SmartContract) AllBooking(ctx contractapi.TransactionContextInterface, 
 		return nil,err
 	}
 	if userJSON ==nil{
-		return nil,fmt.Errorf("the asset %s does not exist", uid)
+		// return nil,fmt.Errorf("the asset %s does not exist", uid)
+		return nil,fmt.Errorf("error1: %v", err)
 	}
 	var user User
 	err = json.Unmarshal(userJSON, &user)
 	if err != nil {
-		return nil,err
+		// return nil,err
+		return nil,fmt.Errorf("error2: %v", err)
 	}
-	var bookinglist = user.BookingList
-	
+	// bookinglist := make([]string, len(user.BookingList))
+	// for i,v := range user.BookingList{
+	// 	bookinglist[i] = v
+	// }
 
 
-	// 받아온 예약 정보 저장 포인터 배열넣기
+	// 2. booking에 받아온 예약 정보 저장 포인터 배열넣기, null값일 경우 json input 오류남. 이부분 처리하기
 	var bookings []Booking
-	for _, bookingid := range bookinglist{
+	for _, bookingid := range user.BookingList{
 		bookingJSON, err := ctx.GetStub().GetState(bookingid)
 
 		mybooking := new(Booking)
 		err = json.Unmarshal(bookingJSON, &mybooking)
 		if err != nil {
-			return nil,err
+			return nil,fmt.Errorf("error3: %v", err)
+			// return nil,err
 		}
 
 		bookings = append(bookings, *mybooking)
@@ -365,3 +405,13 @@ func (s *SmartContract) AllBooking(ctx contractapi.TransactionContextInterface, 
 }
 
 
+// 취소 후 다시 예약리스트 만들기
+func DeleteBid(bookinglist []string ,bid string) []string {
+	var newbookinglist []string
+	for idx, id := range bookinglist{
+		if id == bid {
+			newbookinglist = append(bookinglist[:idx], bookinglist[idx+1:]...)
+		}
+	}
+    return newbookinglist
+}
