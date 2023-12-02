@@ -91,7 +91,7 @@ func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContext
 		Price           : price,
 		Locate			: locate,
 		Address 		: address,
-		Available		: false,
+		Available		: true,
 		BookingList		: make([]string,0),
 	}
 
@@ -104,34 +104,27 @@ func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContext
 	
 	return ctx.GetStub().PutState(acmID, assetJSON)
 }
-// 숙소 수정 함수 update - 관리자가 숙소 정보를 수정(가격, 위치)
+// 숙소 수정 함수 update - 관리자가 숙소 정보를 수정(가격, 이용여부)
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, aid string,accommodation string, room string,  price int, locate string, address string) error {
-	
-	// 접근제어 (AccessControl) : 관리자만 접근 가능
-	if authorization != "admin"{
-		return fmt. Errorf("Caller is not admin")
-	}
+func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextInterface, uid string, aid string, price int, available bool) error {
 	
 	// 숙소 존재 여부 확인 
-	exists, err := s.AccommodationExists(ctx, aid)
+	accommodationInfo, err := s.GetAccommodation(ctx, aid)
 	if err != nil {
 		return err
 	}
-	if !exists {
-		return fmt.Errorf("the asset %s does not exist", aid)
+	// if !accommodationInfo {
+	// 	return fmt.Errorf("the asset %s does not exist", aid)
+	// }
+	
+	// 숙소 수정을 요청한 사람이 해당 숙소를 등록한 사람인지 확인
+	if accommodationInfo.UID != uid {
+		return fmt.Errorf("this accommdation does not available.")
 	}
 
-	// overwriting original asset with new asset
-	accommodationInfo := Accommodation{
-		AID             : aid,
-		Accommodation	: accommodation,
-		Room            : room,
-		Price           : price,
-		Locate			: locate,
-		Address			: address,
-		Available		: false,
-	}
+	// 요청한 수정 수행
+	accommodationInfo.Price = price
+	accommodationInfo.Available = available
 
 	assetJSON, err := json.Marshal(accommodationInfo)
 	if err != nil {
@@ -142,18 +135,16 @@ func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextIn
 }
 
 // 숙소 삭제 함수 delete - 관리자가 숙소 정보를 삭제
-func (s *SmartContract) DeleteAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, aid string) error {
-	// 접근제어 (AccessControl) : 관리자만 접근 가능
-	if authorization != "admin"{
-		return fmt. Errorf("Caller is not admin")
-	}
-
-	exists, err := s.AccommodationExists(ctx, aid)
+func (s *SmartContract) DeleteAccommodation(ctx contractapi.TransactionContextInterface, uid string, aid string) error {
+	// 숙소 존재 여부 확인 
+	accommodationInfo, err := s.GetAccommodation(ctx, aid)
 	if err != nil {
 		return err
 	}
-	if !exists {
-		return fmt.Errorf("the asset %s does not exist", aid)
+
+	// 숙소 수정을 요청한 사람이 해당 숙소를 등록한 사람인지 확인
+	if accommodationInfo.UID != uid {
+		return fmt.Errorf("this accommdation does not available.")
 	}
 
 	return ctx.GetStub().DelState(aid)
@@ -266,10 +257,15 @@ func (s *SmartContract) GetAllAccommodations(ctx contractapi.TransactionContextI
 // 사용자 
 // 예약 함수 booking - 사용자가 숙소를 예약(uid, 방문자명,aid, 숙소, 호수, 체크인/체크아웃 , 결제방식 )
 func (s *SmartContract) Booking(ctx contractapi.TransactionContextInterface, uid string, authorization string, guest string, aid string, myaccommodation string, room string, checkin string,  checkout string, price int, payment string ) error {
-	// 권한 확인 : user만 예약 가능
-	if authorization != "user"{
-		return fmt. Errorf("Caller is not user")
+	// 현재 예약 가능한 숙소인지 확인
+	accommodationInfo, err := s.GetAccommodation(ctx, aid)
+	if err != nil {
+		return err
 	}
+	if accommodationInfo.Available != true {
+		return fmt.Errorf("this accommdation does not available.")
+	}
+
 	// 예약 아이디 자동 생성	
 	bookingJSON, err := ctx.GetStub().GetState("BOOKCOUNT")
 	if err != nil {
@@ -305,14 +301,15 @@ func (s *SmartContract) Booking(ctx contractapi.TransactionContextInterface, uid
 	ctx.GetStub().PutState("BOOKCOUNT", []byte(strconv.Itoa(bookingINT)))
 
 	// 예약한 숙소의 BookingList에 bid 추가
-	accommodationJSON, _ := ctx.GetStub().GetState(aid)
-	var accommodation Accommodation
-	err = json.Unmarshal(accommodationJSON, &accommodation)
-	if err != nil{
-		return fmt.Errorf("error2: %v", err)
-	}
-	accommodation.BookingList = append(accommodation.BookingList, bookingID)
-	accommodationJSON, err = json.Marshal(accommodation)
+	// accommodationJSON, _ := ctx.GetStub().GetState(aid)
+	
+	// var accommodation Accommodation
+	// err = json.Unmarshal(accommodationJSON, &accommodation)
+	// if err != nil{
+	// 	return fmt.Errorf("error2: %v", err)
+	// }
+	accommodationInfo.BookingList = append(accommodationInfo.BookingList, bookingID)
+	accommodationJSON, err := json.Marshal(accommodationInfo)
 	ctx.GetStub().PutState(aid, accommodationJSON)
 
 	// 사용자 데이터에 있는 BookingList에 bookingID를 추가 

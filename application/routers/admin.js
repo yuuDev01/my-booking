@@ -15,7 +15,10 @@ router.get('/updateacm',(req,res)=>{
     res.render("updateacm")
 })
 
-
+router.get('/deleteacm',(req,res)=>{
+    
+    res.render("deleteacm")
+})
 
 module.exports = router //외부에서 export해서 쓸 수 있도록 함
 

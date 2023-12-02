@@ -1,1 +1,1 @@
-{"aid":"accommodation1","uid":"test1","accommodation":"hotel1","room":"room1","price":100,"locate":"울산","address":"울산시 남구 ahotel","available":false,"BookingList":[]}
+[34m2023-12-02 16:52:50.958 UTC [chaincodeCmd] chaincodeInvokeOrQuery -> INFO 001[0m Chaincode invoke successful. result: status:200 
