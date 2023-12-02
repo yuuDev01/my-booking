@@ -16,10 +16,12 @@ type SmartContract struct {
 // 숙소 정보 stuct
 type Accommodation struct{
 	AID				string		`json:"aid"`    		 // 숙소번호
+	UID				string		`json:"uid"`  			// 아이디
 	Accommodation	string 		`json:"accommodation"`	 // 숙소명
 	Room			string 		`json:"room"`			// 방호수
 	Price			int			`json:"price"`			// 가격
 	Locate			string 		`json:"locate"`			// 위치
+	Address			string 		`json:"address"`		// 주소
 	Available		bool		`json:"available"`  	// 예약가능여부
 	BookingList		[]string	`json:"BookingList"`    // 예약 내역 
 } 
@@ -40,7 +42,7 @@ type Booking struct{
 
 type User struct{
 	UID				string		`json:"uid"`			// uid 
-	// Authorization   string		`json:"authorization"`  // 권한 ( 관리자 : admin, 사용자 : user) 
+	Authorization   string		`json:"authorization"`  // 권한 ( 관리자 : admin, 사용자 : user) 
 	BookingList		[]string	`json:"BookingList"`    // 예약 내역 
 }
 
@@ -55,7 +57,7 @@ type QueryResult struct {
 
 // 관리자
 // 숙소 등록 함수 Register - 관리자가 숙소를 등록(uid, auth, accommodation,room, price, locate 등) 
-func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, accommodation string, room string, price int, locate string  ) error {
+func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, accommodation string, room string, price int, locate string, address string  ) error {
 	//원장에 숙소 정보를 저장하는 것
 
 	// 접근제어 (AccessControl)
@@ -83,10 +85,12 @@ func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContext
 	// 숙소 정보 데이터 생성
 	accommodationInfo := Accommodation{
 		AID             : acmID,
+		UID				: uid,
 		Accommodation	: accommodation,
 		Room            : room,
 		Price           : price,
 		Locate			: locate,
+		Address 		: address,
 		Available		: false,
 		BookingList		: make([]string,0),
 	}
@@ -102,7 +106,7 @@ func (s *SmartContract) RegisterAccommodation(ctx contractapi.TransactionContext
 }
 // 숙소 수정 함수 update - 관리자가 숙소 정보를 수정(가격, 위치)
 // UpdateAsset updates an existing asset in the world state with provided parameters.
-func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, aid string,accommodation string, room string,  price int, locate string) error {
+func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextInterface, uid string, authorization string, aid string,accommodation string, room string,  price int, locate string, address string) error {
 	
 	// 접근제어 (AccessControl) : 관리자만 접근 가능
 	if authorization != "admin"{
@@ -125,6 +129,7 @@ func (s *SmartContract) UpdateAccommodation(ctx contractapi.TransactionContextIn
 		Room            : room,
 		Price           : price,
 		Locate			: locate,
+		Address			: address,
 		Available		: false,
 	}
 
@@ -164,6 +169,66 @@ func (s *SmartContract) AccommodationExists(ctx contractapi.TransactionContextIn
 	return assetJSON != nil, nil
 }
 
+// 관리자마다 각자 본인이 등록한 숙소 조회
+func (s *SmartContract) GetMyAccommodations(ctx contractapi.TransactionContextInterface, uid string) ([]QueryResult, error) {
+	// range query with empty string for startKey and endKey does an
+	// open-ended query of all assets in the chaincode namespace.
+	startKey := "accommodation1"
+    endKey := "accommodation999"
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	accommodations := []QueryResult{}
+	// var accommodations []*Accommodation
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		
+		if err != nil {
+			return nil, err
+		}
+		
+		accommodation := new(Accommodation)
+		_ = json.Unmarshal(queryResponse.Value, accommodation)
+		// 조회한 uid가 존재할 경우
+		if accommodation.UID == uid{
+			queryResult := QueryResult{Key: queryResponse.Key, Record: accommodation}
+			accommodations = append(accommodations, queryResult)
+		}
+		
+	}
+	
+	return accommodations, nil
+}
+
+// 특정 숙소 조회  - 수정에 필요. 인자(숙소번호)
+func (s *SmartContract) GetAccommodation(ctx contractapi.TransactionContextInterface, aid string) (*Accommodation, error) {
+	// range query with empty string for startKey and endKey does an
+	// open-ended query of all assets in the chaincode namespace.
+	acmBytes, err := ctx.GetStub().GetState(aid)
+	if err != nil {
+		return nil, err
+	}
+	
+
+	if acmBytes == nil {
+		return nil, fmt.Errorf("%s does not exist", aid)
+	}
+
+	accommodation := new(Accommodation)
+	_ = json.Unmarshal(acmBytes, accommodation)
+	
+	return accommodation, nil
+}
+
+
+
+
+
+
+// user 기능
 // 모든 숙소 조회 . null값일 경우 json input 오류남. 이부분 처리하기
 func (s *SmartContract) GetAllAccommodations(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
 	// range query with empty string for startKey and endKey does an
@@ -415,3 +480,6 @@ func DeleteBid(bookinglist []string ,bid string) []string {
 	}
     return newbookinglist
 }
+
+
+// docker rm -f $(docker ps -aq) 

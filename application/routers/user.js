@@ -16,7 +16,16 @@ router.post("/login", async (req,res)=>{
         res.send("비밀번호 불일치")
         return
     }
-    // res.send("로그인 성공")
+    // res.send("로그인 성공"), 쿠키 생성
+    cookie_str = `{"userid":"${user.userid}", "username":"${user.username}", "userauth":"${user.userauth}" }`
+    res.cookie("USER", cookie_str)
+
+    res.redirect("/")
+})
+
+
+router.get('/logout',(req,res)=>{
+    res.clearCookie("USER")
     res.redirect("/")
 })
 
@@ -32,9 +41,10 @@ router.post("/signup", async (req,res)=>{
     const exist = await fetchUsers(userid)
     if(exist){
         res.send("이미 존재하는 사용자 입니다.")
+        return
     }
     await createUser(newUser)
-    res.send("회원가입 완료")
+    res.redirect("/")
 })
 
 // 모든 데이터 가져와서 구조체로 리턴

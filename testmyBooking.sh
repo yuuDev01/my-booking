@@ -34,92 +34,113 @@ export CORE_PEER_ADDRESS=localhost:7051
 
 ## 숙소 등록
 # TEST1 : Invoking the chaincode
-infoln "TEST1-1 : Invoking the chaincode (RegisterAccommodation)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"RegisterAccommodation","Args":["test1", "admin", "hotel1", "room1", "100", "제주도"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+# infoln "TEST1-1 : Invoking the chaincode (RegisterAccommodation)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"RegisterAccommodation","Args":["test1", "admin", "hotel1", "room1", "100", "울산", "울산시 남구 ahotel"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 
-# TEST1 : Invoking the chaincode
-infoln "TEST1-2 : Invoking the chaincode (RegisterAccommodation)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"RegisterAccommodation","Args":["test2", "admin", "hotel1", "room2", "200", "제주도"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+# # TEST1 : Invoking the chaincode
+# infoln "TEST1-2 : Invoking the chaincode (RegisterAccommodation)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"RegisterAccommodation","Args":["test2", "admin", "hotel1", "room2", "200", "제주도", "제주도 서귀포 bhotel"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 
-# TEST1 : Invoking the chaincode > wrong value
-infoln "TEST1-3 : Invoking the chaincode (RegisterAccommodation)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"RegisterAccommodation","Args":["test2", "user", "hotel1", "room3", "500", "제주도"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+# # TEST1 : Invoking the chaincode > wrong value
+# infoln "TEST1-3 : Invoking the chaincode (RegisterAccommodation)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"RegisterAccommodation","Args":["test2", "user", "hotel1", "room3", "500", "제주도", "제주도 서귀포"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 
 
-## 숙소 수정(가격, 위치)
-# TEST1 : Invoking the chaincode
-infoln "TEST1-4 : Invoking the chaincode (UpdateAccommodation)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"UpdateAccommodation","Args":["test2", "admin", "accommodation2",  "hotel1", "room2", "300", "부산"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+# ## 숙소 수정(가격, 위치)
+# # TEST1 : Invoking the chaincode
+# infoln "TEST1-4 : Invoking the chaincode (UpdateAccommodation)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"UpdateAccommodation","Args":["test2", "admin", "accommodation2",  "hotel1", "room2", "300", "부산", "부산시 남포동 chotel"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 
-## 숙소 삭제
-# TEST1 : Invoking the chaincode
-infoln "TEST1-3 : Invoking the chaincode (DeleteAccommodationInfo)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"DeleteAccommodation","Args":["test2", "admin", "accommodation2"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+# ## 숙소 삭제
+# # TEST1 : Invoking the chaincode
+# infoln "TEST1-3 : Invoking the chaincode (DeleteAccommodationInfo)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"DeleteAccommodation","Args":["test2", "admin", "accommodation2"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 
 ## 모든 숙소 조회
 # TEST2 : Query the chaincode
-infoln "TEST2-1 : Query the chaincode (GetAllAccommodations)"
+infoln "TEST2-1 : Query the chaincode (GetMyAccommodations)"
 set -x
-peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function":"GetAllAccommodations","Args":[]}' >&log.txt
+peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function":"GetMyAccommodations","Args":["test1"]}' >&log.txt
 { set +x; } 2>/dev/null
 cat log.txt
 sleep 3
 
 
-## user
-# 숙소 예약 : 성공
-TEST1 : Invoking the chaincode
-infoln "TEST1-1 : Invoking the chaincode (Booking)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"Booking","Args":["test1","user","tom","accommodation1","hotel1","room1","20231129","20231130","100","card"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+# ## 모든 숙소 조회
+# # TEST2 : Query the chaincode
+# infoln "TEST2-1 : Query the chaincode (GetAllAccommodations)"
+# set -x
+# peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function":"GetAllAccommodations","Args":[]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 
-# 숙소 수정 : 성공
-TEST1 : Invoking the chaincode
-infoln "TEST1-2 : Invoking the chaincode (UpdateBooking)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"UpdateBooking","Args":["booking1", "test1", "김철수","accommodation1","hotel1","room1","20231129","20231130","100","card"]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
-
-# 사용자 예약 조회 
+# ## 특정 숙소 조회
+## 모든 숙소 조회
 # TEST2 : Query the chaincode
-infoln "TEST2-1 : Query the chaincode (GetAllAccommodations)"
+infoln "TEST2-1 : Query the chaincode (GetAccommodation)"
 set -x
-peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function":"AllBooking","Args":["test1"]}' >&log.txt
+peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function":"GetAccommodation","Args":["accommodation1"]}' >&log.txt
 { set +x; } 2>/dev/null
 cat log.txt
 sleep 3
 
-# 예약 삭제 : 성공
-TEST1 : Invoking the chaincode
-infoln "TEST1-3 : Invoking the chaincode (DeleteBooking)"
-set -x
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"DeleteBooking","Args":["booking1", "test1", "accommodation1" ]}' >&log.txt
-{ set +x; } 2>/dev/null
-cat log.txt
-sleep 3
+
+
+# ## user
+# # 숙소 예약 : 성공
+# TEST1 : Invoking the chaincode
+# infoln "TEST1-1 : Invoking the chaincode (Booking)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"Booking","Args":["test1","user","tom","accommodation1","hotel1","room1","20231129","20231130","100","card"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
+
+# # 숙소 수정 : 성공
+# TEST1 : Invoking the chaincode
+# infoln "TEST1-2 : Invoking the chaincode (UpdateBooking)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"UpdateBooking","Args":["booking1", "test1", "김철수","accommodation1","hotel1","room1","20231129","20231130","100","card"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
+
+# # 사용자 예약 조회 
+# # TEST2 : Query the chaincode
+# infoln "TEST2-1 : Query the chaincode (GetAllAccommodations)"
+# set -x
+# peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function":"AllBooking","Args":["test1"]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
+
+# # 예약 삭제 : 성공
+# TEST1 : Invoking the chaincode
+# infoln "TEST1-3 : Invoking the chaincode (DeleteBooking)"
+# set -x
+# peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} $PEER_CONN_PARMS -c '{"function":"DeleteBooking","Args":["booking1", "test1", "accommodation1" ]}' >&log.txt
+# { set +x; } 2>/dev/null
+# cat log.txt
+# sleep 3
 

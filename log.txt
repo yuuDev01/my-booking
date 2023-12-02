@@ -1,1 +1,1 @@
-[34m2023-11-29 20:51:06.330 UTC [chaincodeCmd] chaincodeInvokeOrQuery -> INFO 001[0m Chaincode invoke successful. result: status:200 
+{"aid":"accommodation1","uid":"test1","accommodation":"hotel1","room":"room1","price":100,"locate":"울산","address":"울산시 남구 ahotel","available":false,"BookingList":[]}
