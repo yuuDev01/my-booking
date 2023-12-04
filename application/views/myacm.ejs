@@ -13,15 +13,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>my accommodations</h1>
+        <h1>전체 숙소 목록</h1>
     </div>
     
     <div class="container">
-        <button id="btn_queryMyAcm" class="btn btn-primary">조회</button>
         <div id="resultwindow">
-            <h3>my accommodations Query Result</h2>
+            <h3>숙소 list</h2>
             <div id="queryresult">
-                <p>whatwhat</p>
+                
+                <p>로딩중. 잠시만 기다려주세요.</p>
             </div>
         </div>
     </div>
@@ -29,42 +29,44 @@
 </body>
 </html>
 <script>
-    $("#resultwindow").hide()
-    $("#btn_queryMyAcm").click(function(){
-        $.get("/chaincode/myacm", (data)=>{    
-            //  console.log("result"+JSON.stringify(data)+"끝") 
-            $("#resultwindow").show()       
-            $("#queryresult").empty()
-            for(var i=0; i <data.msg.length; i++){
-                const result = data.msg[i].Record
-                const updateid = "updatebtn"+i
-                
-                const aid = result.aid
-                console.log(result)
-                $("#queryresult").append(i+1)
-                $("#queryresult").append(". 숙소ID :"+JSON.stringify(result.aid)+"<br>")
-                $("#queryresult").append("  지역 :"+JSON.stringify(result.locate)+"<br>")
-                $("#queryresult").append("  주소 :"+JSON.stringify(result.address)+"<br>")
-                $("#queryresult").append("  숙소명 :"+JSON.stringify(result.accommodation)+"<br>")
-                $("#queryresult").append("  호수 :"+JSON.stringify(result.room)+"<br>")
-                $("#queryresult").append("  가격 :"+JSON.stringify(result.price)+"<br>")
-                $("#queryresult").append("  이용가능 :"+JSON.stringify(result.available)+"<br>")
-                $("#queryresult").append('<button type="button" id='+updateid+ 'name="updateacm">수정</button>')
 
-                // $("#queryresult").append('<button type="button" id="updateacm" name="updateacm">수정</button>')
-                $("#queryresult").append('<button type="button" id="deleteacm" name="deleteacm">삭제</button>')
-                // $(this).parent().append('<button type="button" id="btnUpdate" name="btnUpdate">수정</button>')
-                // $(this).parent().append('<button type="button" id="btnUpdate" name="btnUpdate">삭제</button>')
-                $("#queryresult").append('<br><br>')
-                
-                $("#updateid").click(()=>{
-                    $.get('/admin/updateacm', {aid}, (data)=>{
-                        console.log(updateid)
-                    })
+$(document).ready(function(){
+    $.get("/chaincode/myacm", (data)=>{    
+        $("#queryresult").empty()
+        for(var i=0; i <data.msg.length; i++){
+            const updateid = "updatebtn"+i
+            const result = data.msg[i].Record
+
+            console.log(data.msg)
+            $("#queryresult").append(i+1)
+            $("#queryresult").append(". 숙소ID :"+JSON.stringify(result.aid)+"<br>")
+            $("#queryresult").append("  지역 :"+JSON.stringify(result.locate)+"<br>")
+            $("#queryresult").append("  주소 :"+JSON.stringify(result.address)+"<br>")
+            $("#queryresult").append("  숙소명 :"+JSON.stringify(result.accommodation)+"<br>")
+            $("#queryresult").append("  호수 :"+JSON.stringify(result.room)+"<br>")
+            $("#queryresult").append("  가격 :"+JSON.stringify(result.price)+"<br>")
+            $("#queryresult").append("  이용가능 :"+JSON.stringify(result.available)+"<br>")
+            $("#queryresult").append('<button type="button" id='+updateid+ 'name="updateacm">수정</button>')
+            $("#queryresult").append('<button type="button" id="deleteacm" name="deleteacm">삭제</button>')
+            // $(this).parent().append('<button type="button" id="btnUpdate" name="btnUpdate">삭제</button>')
+            // $(this).parent().append('<button type="button" id="btnUpdate" name="btnUpdate">수정</button>')
+            $("#queryresult").append('<br><br>')
+            $("#updateid").click(()=>{
+                $.get('/admin/updateacm', {aid}, (data)=>{
+                    console.log(updateid)
                 })
-            }
+            })
+        }
     })
-    })
+})
+
     
 
 </script>
+<style>
+    .container {
+    margin-top: 40px;
+
+}
+
+</style>

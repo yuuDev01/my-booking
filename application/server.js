@@ -14,6 +14,8 @@ const HOST = "0.0.0.0";
 var userRouter = require("./routers/user")
 var adminRouter = require("./routers/admin")
 var chaincodeRouter = require("./routers/chaincode")
+var memberRouter = require("./routers/member")
+
 
 // 미들웨어 등록부분
 app.use(express.static(path.join(__dirname, "views")));
@@ -26,6 +28,7 @@ app.set('view engine', 'ejs');
 
 app.use("/user", userRouter)
 app.use("/admin", adminRouter)
+app.use("/member", memberRouter)
 app.use("/chaincode", chaincodeRouter)
 
 app.get("/", (req,res)=>{

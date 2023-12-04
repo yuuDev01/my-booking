@@ -69,5 +69,6 @@ async function fetchUsers(userid){
     return user
 }
 
+
 module.exports = router //외부에서 export해서 쓸 수 있도록 함
 

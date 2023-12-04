@@ -1,8 +1,8 @@
 const express = require("express")
 const router = express.Router()
 
-router.get("/registeracm", async (req,res)=>{
-    res.render("registeracm")
+router.get("/registeracm", (req,res)=>{
+    res.render("acmregister")
 })
 
 router.get('/myacm/:userid', (req,res)=>{
@@ -12,13 +12,17 @@ router.get('/myacm/:userid', (req,res)=>{
 
 router.get('/updateacm',(req,res)=>{
     
-    res.render("updateacm")
+    res.render("acmupdate")
 })
 
 router.get('/deleteacm',(req,res)=>{
     
-    res.render("deleteacm")
+    res.render("acmdelete")
 })
+
+
+
+
 
 module.exports = router //외부에서 export해서 쓸 수 있도록 함
 

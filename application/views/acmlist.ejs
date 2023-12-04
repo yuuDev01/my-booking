@@ -12,52 +12,52 @@
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="header">
-        <a href="/user/logout" class="btn btn-outline-primary">로그아웃</a>
-        
+    <div class="container">
+        <h1>전체 숙소 조회</h1>
     </div>
-    <% if(userclass=="admin"){ %>
-
-    <div class="container side">
-        <p>관리자 <%= username %>님</p>
-        <a href="/accommodation/create" class="btn btn-primary btn-lg">숙소등록</a><br><br>
-        <a href="/accommodation/read" class="btn btn-secondary btn-lg">숙소조회</a><br><br>
-        <div class="acm-update">
-            <input type="text" class="" name="" id=""><br>
-            <a href="/accommodation/update" class="btn btn-warning btn-lg">숙소수정</a>
-        </div><br><br>
-        <div class="acm-delect">
-            <input type="text" class="" name="" id=""><br>
-            <a href="/accommodation/delete" class="btn btn-danger btn-lg">숙소삭제</a>
-        </div>
-    </div>
-    <div class="container main"></div>
-    <% }else { %>
-        <p><%=username %> 회원</p>
-        <div class="container side">
-            <a href="/accommodation/create" class="btn btn-primary btn-lg">숙소조회</a><br><br>
-            <a href="/accommodation/read" class="btn btn-secondary btn-lg">예약</a><br><br>
-            <div class="acm-update">
-                <input type="text" class="" name="" id=""><br>
-                <a href="/accommodation/update" class="btn btn-warning btn-lg">예약수정</a>
-            </div><br><br>
-            <div class="acm-delect">
-                <input type="text" class="" name="" id=""><br>
-                <a href="/accommodation/delete" class="btn btn-danger btn-lg">예약취소</a>
+    <div class="container">
+        <div id="resultwindow">
+            <h3> 숙소 목록</h3>
+            <div id="queryresult">
+                <p>로딩중. 잠시만 기다려주세요.</p>
             </div>
         </div>
-        <div class="container main"></div>
-    <% } %>     
-</body>
-<style>
-    body{
-        padding: 30px;
-    }
-    .container{
+    </div>
 
-    }
-    .side{
-        margin: 30px;
-    }
-</style>
+</body>
 </html>
+<script>
+    $(document).ready(function(){
+    //실행내용
+        $.get("/chaincode/acmlist", (data)=>{  
+            $("#queryresult").empty()
+            for(var i=0; i <data.msg.length; i++){
+            const result = data.msg[i].Record
+            console.log(result)
+        // const updateid = "updatebtn"+i
+                
+        // const aid = result.aid
+            console.log(result)
+            $("#queryresult").append(i+1)
+            $("#queryresult").append(". 숙소ID :"+JSON.stringify(result.aid)+"<br>")
+            $("#queryresult").append("  지역 :"+JSON.stringify(result.locate)+"<br>")
+            $("#queryresult").append("  주소 :"+JSON.stringify(result.address)+"<br>")
+            $("#queryresult").append("  숙소명 :"+JSON.stringify(result.accommodation)+"<br>")
+            $("#queryresult").append("  호수 :"+JSON.stringify(result.room)+"<br>")
+            $("#queryresult").append("  가격 :"+JSON.stringify(result.price)+"<br>")
+            $("#queryresult").append("  이용가능 :"+JSON.stringify(result.available)+"<br>")
+            $("#queryresult").append('<br><br>')
+    }
+})
+})
+ 
+    
+
+</script>
+<style>
+    .container {
+    margin-top: 40px;
+
+}
+
+</style>
