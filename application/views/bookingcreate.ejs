@@ -67,51 +67,54 @@
 
 <script>
 
+// date picker : 예약된 날짜 선택 불가능하게 처리하기
 $(document).ready(function() {
     //오늘날짜
     var today = new Date();
+    var year = today.getFullYear();
+    var month = ('0' + (today.getMonth() + 1)).slice(-2);
+    var day = ('0' + today.getDate()).slice(-2);
+    var startString = year + '-' + month  + '-' + day;  // 날짜 포맷 :  yyyy-mm-dd 
 
-var year = today.getFullYear();
-var month = ('0' + (today.getMonth() + 1)).slice(-2);
-var day = ('0' + today.getDate()).slice(-2);
+    // 예약 가능한 기간 - 한달
+    var endday = new Date(today.setDate(today.getDate()+29)); // 오늘날짜로부터 +29
+    var year = endday.getFullYear();
+    var month = ('0' + (endday.getMonth() + 1)).slice(-2);
+    var day = ('0' + endday.getDate()).slice(-2);
+    var endstring = year + '-' + month  + '-' + day;
 
-var dateString = year + '-' + month  + '-' + day;
-
-var endday = new Date(today.setDate(today.getDate()+7));
-var year = endday.getFullYear();
-var month = ('0' + (endday.getMonth() + 1)).slice(-2);
-var day = ('0' + endday.getDate()).slice(-2);
-
-var endstring = year + '-' + month  + '-' + day;
+    // date picker 
     $('.input-daterange input').each(function() {
-    $(this).datepicker({
-    format: "yyyy-mm-dd",
-    language: "ko",
-    startDate : dateString,
-    endDate : endstring
+        $(this).datepicker({
+        format: "yyyy-mm-dd", // 날짜 포맷 : yyyy-mm-dd
+        language: "ko",  // 언어 : 한글
+        startDate : startString,  // 예약 start date : today
+        endDate : endstring  // 예약 end date : today+29 
     });
 
 
+    // 예약 시작 date picker 날짜 선택시 
     $("#start").on('changeDate', function () {
-            var day = $("#start").val();
-            $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
-        });
-        $("#end").on('changeDate', function () {
-            var day = $("#end").val();
-            $("#start").datepicker('setEndDate', day); // 시작일은 종료일보다 늦을 수 없다.
-        });
-  
-});
+        var day = $("#start").val();
+        $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
+    });
+    
+    // 예약 종료 data picker 날짜 선택시
+    $("#end").on('changeDate', function () {
+        var day = $("#end").val();
+        $("#start").datepicker('setEndDate', day); // 시작일은 종료일보다 늦을 수 없다.
+    });
+    });
 })
 
 $("#btn_back").click(() => {
-        $("#result").empty()
-        location.href = '/';
-    })
+    $("#result").empty()
+    location.href = '/';
+})
 
 </script>
 <style>
-        .container {
+.container {
         margin-top: 40px;
 
 }
