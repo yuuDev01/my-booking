@@ -372,6 +372,7 @@ router.get('/acmlist',  async (req,res)=>{
 router.post("/bookingcreate", async (req,res)=>{
     // 사용자가 입력한 숙소 정보 읽어오기
     // 쿠키에서 userid 읽어오기
+    console.log(req.body)
     const {acmid,acmguest,start,end,acmpayment} = req.body
     const userCookie = req.cookies[`USER`]
     userData = JSON.parse(userCookie) //userData.userid
@@ -524,6 +525,65 @@ router.post("/bookingupdate", async (req,res)=>{
 
     // res.redirect("/")
 
+})
+
+// 특정 숙소 예약 리스트 받아오기
+router.get('/findbookinglist', async (req,res)=>{
+    const acmid = req.query.acmid
+    console.log(acmid)
+    try {
+        // load the network configuration
+        const ccpPath = path.resolve(__dirname,"..", "ccp", "connection-org1.json");
+        let ccp = JSON.parse(fs.readFileSync(ccpPath, "utf8"));
+
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), "wallet");
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get("appUser");
+        if (!identity) {
+            console.log(
+                'An identity for the user "appUser" does not exist in the wallet'
+            );
+            console.log("Run the registerUser.js application before retrying");
+            return;
+        }
+
+        // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, {
+            wallet,
+            identity: "appUser",
+            discovery: { enabled: true, asLocalhost: true },
+        });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork("mychannel");
+
+        // Get the contract from the network.
+        const contract = network.getContract("myBooking");
+
+        // Submit the specified transaction.
+        // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
+        // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR12', 'Dave')
+        result = await contract.evaluateTransaction(
+            "GetBookingDates",
+            acmid
+        );
+        console.log("Transaction has been submitted");
+        res_str = `{"resultcode":"success", "msg": ${result}}`
+        res.json(JSON.parse(res_str))
+        
+        // Disconnect from the gateway.
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        res_str = `{"resultcode":"failed", "msg":"자산조회 실패"}`
+        res.json(JSON.parse(res_str))
+    
+    }
 })
 
 

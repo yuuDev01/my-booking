@@ -24,15 +24,20 @@
     <div class="container">
         <h2>숙소 예약</h2>
         <!--숙소id, 게스트, 날짜 입력, 지불방식 -->
-        <form action="/chaincode/bookingcreate" method="post">
-            <br>
+        <!-- 1. 숙소 검색 후 예약된 bookinglist 가져오기 -->
+        <div class="serachacmid">
             <div class="input-group mb-3">
                 <span class="input-group-text" id="inputGroup-sizing-default">숙소 ID </span>
-                <input type="text" name="acmid" class="form-control" aria-label="Sizing example input"
+                <input type="text" id="acmid" class="form-control" aria-label="Sizing example input"
                 aria-describedby="inputGroup-sizing-default">
+                <button id="btn_search" class="btn btn-primary">숙소 ID검색</button>
             </div>
+        </div>
+        <!-- 2.  -->
+        <form action="/chaincode/bookingcreate" method="post">
+            <input type="text"  name="acmid" id="acmidp" >
             <div class="input-group mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-default">투숙자명 </span>
+                <span class="input-group-text" id="inputGroup-sizing-default">Guest  </span>
                 <input type="text" name="acmguest" class="form-control" aria-label="Sizing example input"
                 aria-describedby="inputGroup-sizing-default">
             </div>
@@ -45,9 +50,7 @@
                 <input type="text" class="input-sm form-control" id="end" name="end" />
             </div>  
         </div>
-          
         <div class="input-group mb-3">
-
             <span class="input-group-text" id="inputGroup-sizing-default">결제방법 </span>
             <select class="form-select" name="acmpayment" id="">
                 <option value="card">카드결제</option>
@@ -55,9 +58,8 @@
                 <option value="phone">휴대폰결제</option>
             </select>
             </div>
-            <input type="submit" class="btn btn-primary" value="숙소 등록">
+            <input type="submit" class="btn btn-primary" value="예약">
             <button id="btn_back" class="btn btn-secondary" type="button">취소</button>
-
         </form>
     </div>
 
@@ -66,62 +68,78 @@
 </html>
 
 <script>
-
-// date picker : 예약된 날짜 선택 불가능하게 처리하기
-$(document).ready(function() {
-    //오늘날짜
-    var today = new Date();
-    var year = today.getFullYear();
-    var month = ('0' + (today.getMonth() + 1)).slice(-2);
-    var day = ('0' + today.getDate()).slice(-2);
-    var startString = year + '-' + month  + '-' + day;  // 날짜 포맷 :  yyyy-mm-dd 
-
-    // 예약 가능한 기간 - 한달
-    var endday = new Date(today.setDate(today.getDate()+29)); // 오늘날짜로부터 +29
-    var year = endday.getFullYear();
-    var month = ('0' + (endday.getMonth() + 1)).slice(-2);
-    var day = ('0' + endday.getDate()).slice(-2);
-    var endstring = year + '-' + month  + '-' + day;
-
-    // date picker 
-    $('.input-daterange input').each(function() {
-        $(this).datepicker({
-        format: "yyyy-mm-dd", // 날짜 포맷 : yyyy-mm-dd
-        language: "ko",  // 언어 : 한글
-        startDate : startString,  // 예약 start date : today
-        endDate : endstring  // 예약 end date : today+29 
-    });
+    // 숙소ID 검색
+    $("#btn_search").click(()=>{
+        var bookingid = $("#acmid").val() //숙소id
+        $("#acmidp").val(bookingid)
+        document.getElementById("acmidp").innerHTML =$("#acmidp").val()
+        const urlstr = "/chaincode/findbookinglist?acmid="+bookingid
+        fetch(urlstr,{
+            method:"GET",
+        }).then((response) => response.json())
+          .then((data) => console.log(data.msg));
+    })
 
 
-    // 예약 시작 date picker 날짜 선택시 
-    $("#start").on('changeDate', function () {
-        var day = $("#start").val();
-        $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
-    });
-    
-    // 예약 종료 data picker 날짜 선택시
-    $("#end").on('changeDate', function () {
-        var day = $("#end").val();
-        $("#start").datepicker('setEndDate', day); // 시작일은 종료일보다 늦을 수 없다.
-    });
-    });
-})
+    // date picker : 예약된 날짜 선택 불가능하게 처리하기
+    $(document).ready(function() {
+        //오늘날짜
+        var today = new Date();
+        var year = today.getFullYear();
+        var month = ('0' + (today.getMonth() + 1)).slice(-2);
+        var day = ('0' + today.getDate()).slice(-2);
+        var startString = year + '-' + month  + '-' + day;  // 날짜 포맷 :  yyyy-mm-dd 
 
-$("#btn_back").click(() => {
-    $("#result").empty()
-    location.href = '/';
-})
+        // 예약 가능한 기간 - 한달
+        var endday = new Date(today.setDate(today.getDate()+29)); // 오늘날짜로부터 +29
+        var year = endday.getFullYear();
+        var month = ('0' + (endday.getMonth() + 1)).slice(-2);
+        var day = ('0' + endday.getDate()).slice(-2);
+        var endstring = year + '-' + month  + '-' + day;
+
+        // date picker 
+        $('.input-daterange input').each(function() {
+            $(this).datepicker({
+            format: "yyyy-mm-dd", // 날짜 포맷 : yyyy-mm-dd
+            language: "ko",  // 언어 : 한글
+            startDate : startString,  // 예약 start date : today
+            endDate : endstring  // 예약 end date : today+29 
+        });
+
+
+        // 예약 시작 date picker 날짜 선택시 
+        $("#start").on('changeDate', function () {
+            var day = $("#start").val();
+            $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
+        });
+        
+        // 예약 종료 data picker 날짜 선택시
+        $("#end").on('changeDate', function () {
+            var day = $("#end").val();
+            $("#start").datepicker('setEndDate', day); // 시작일은 종료일보다 늦을 수 없다.
+        });
+        });
+    })
+
+    $("#btn_back").click(() => {
+        $("#result").empty()
+        location.href = '/';
+    })
 
 </script>
 <style>
-.container {
-        margin-top: 40px;
+    .container {
+            margin-top: 40px;
 
-}
+    }
 
-.input-group-addon{
-    background-color: rgb(194, 194, 194);
-    padding: 3px;
-    color: white;
-}
+    .input-group-addon{
+        background-color: rgb(194, 194, 194);
+        padding: 3px;
+        color: white;
+    }
+
+    #acmidp{
+        display:none;
+    }
 </style>
