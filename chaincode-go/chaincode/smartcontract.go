@@ -216,7 +216,27 @@ func (s *SmartContract) GetAccommodation(ctx contractapi.TransactionContextInter
 }
 
 
+// !!!! 특정 숙소 bookinglist bookingid의 chekinin,checkout값 배열 받아오기
+func (s *SmartContract) GetBookingDates(ctx contractapi.TransactionContextInterface, aid string) (Dates []string, err error) {
+	// 해당 숙소 데이터 받아오기
+	accommodation, err := s.GetAccommodation(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+	// if accommodation == nil {
+	// 	return nil, fmt.Errorf("%s does not exist", aid)  //숙소id검색x
+	// }
+	dates := []string{}
+	for _, bookingid := range accommodation.BookingList {
+		bookingJSON, _ := ctx.GetStub().GetState(bookingid)
+		mybooking := new(Booking)
+		err = json.Unmarshal(bookingJSON, mybooking)
+		dates = append(dates, mybooking.CheckIn)
+		dates = append(dates, mybooking.CheckOut)
+	}
 
+	return dates, nil
+}
 
 
 
