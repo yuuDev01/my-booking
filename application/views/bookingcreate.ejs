@@ -77,12 +77,39 @@
         fetch(urlstr,{
             method:"GET",
         }).then((response) => response.json())
-          .then((data) => console.log(data.msg));
-    })
+          .then((data) => console.log(data.msg)); datalist = data.msg
+        })
+    
+        
 
-
-    // date picker : 예약된 날짜 선택 불가능하게 처리하기
-    $(document).ready(function() {
+    // date picker : 예약된 날짜 선택 불가능하게 처리하기  2023/12/09 수정
+    function disableDays(date){
+        // 현재 예약된 일정들 비활성
+        var datelist = ["2023-12-10","2023-12-14","2023-12-19","2023-12-21"]
+        var dateRange =[]
+        // var dateString = jQuery.datepicker.formatDate("yyyy-mm-dd", date);
+        // var datelist = []
+        
+        
+        for (var i=0 ; i < datelist.length-1; i+=2){
+            var startdate = datelist[i]
+            var enddate = datelist[i+1]
+            console.log(d)
+            for (var d = new Date(startdate); d <= new Date(enddate); d.setDate(d.getDate() + 1)) {
+                var year = d.getFullYear();
+                var month = ('0' + (d.getMonth() + 1)).slice(-2);
+                var day = ('0' + d.getDate()).slice(-2);
+                var strdate = year + '-' + month  + '-' + day;
+                dateRange.push(strdate);
+                // dateRange.push($.datepicker.dateFormat("yyyy-mm-dd", d));
+            }
+            
+            console.log(dateRange)
+        }
+        return dateRange
+    }
+    
+    $(document).ready(function(date) {
         //오늘날짜
         var today = new Date();
         var year = today.getFullYear();
@@ -97,29 +124,52 @@
         var day = ('0' + endday.getDate()).slice(-2);
         var endstring = year + '-' + month  + '-' + day;
 
+        
         // date picker 
         $('.input-daterange input').each(function() {
             $(this).datepicker({
             format: "yyyy-mm-dd", // 날짜 포맷 : yyyy-mm-dd
             language: "ko",  // 언어 : 한글
             startDate : startString,  // 예약 start date : today
-            endDate : endstring  // 예약 end date : today+29 
-        });
+            endDate : endstring,  // 예약 end date : today+29
+            beforeShowDay: disableDays
+             });
 
 
-        // 예약 시작 date picker 날짜 선택시 
-        $("#start").on('changeDate', function () {
-            var day = $("#start").val();
-            $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
-        });
-        
-        // 예약 종료 data picker 날짜 선택시
-        $("#end").on('changeDate', function () {
-            var day = $("#end").val();
-            $("#start").datepicker('setEndDate', day); // 시작일은 종료일보다 늦을 수 없다.
-        });
-        });
-    })
+            // 예약 시작 date picker 날짜 선택시 
+            $("#start").on('changeDate', function () {
+                var day = $("#start").val();
+                $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
+            });
+            
+            // 예약 종료 data picker 날짜 선택시
+            $("#end").on('changeDate', function () {
+                var day = $("#end").val();
+                $("#start").datepicker('setEndDate', day); // 시작일은 종료일보다 늦을 수 없다.
+            });
+            });
+        })
+
+    
+    
+
+
+    // // 범위
+    // var dateRange= [];
+    // var dateString = jQuery.datepicker.formatDate('yy-mm-dd', date);
+
+    // // 전 아래에 jstl을 이용 서버에서 처리한다... 
+    // var startdate = "2018-02-01";
+    // var enddate = "2018-02-05";
+
+    // for (var d = new Date(startdate); d <= new Date(enddate); d.setDate(d.getDate() + 1)) {
+    //       dateRange.push($.datepicker.formatDate('yy-mm-dd', d));
+    // }
+    // return [dateRange.indexOf(dateString) == -1];
+
+
+
+
 
     $("#btn_back").click(() => {
         $("#result").empty()
