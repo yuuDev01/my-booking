@@ -82,30 +82,43 @@
     
         
 
-    // date picker : 예약된 날짜 선택 불가능하게 처리하기  2023/12/09 수정
+    // date picker : 예약된 날짜 선택 불가능하게 처리하기 
     function disableDays(date){
         // 현재 예약된 일정들 비활성
-        var datelist = ["2023-12-10","2023-12-14","2023-12-19","2023-12-21"]
+        var datelist = ["2023-12-10","2023-12-14","2023-12-16","2023-12-17","2023-12-20","2023-12-23"]
         var dateRange =[]
-        // var dateString = jQuery.datepicker.formatDate("yyyy-mm-dd", date);
-        // var datelist = []
         
-        
+        // 배열에 있는 날짜 확인
         for (var i=0 ; i < datelist.length-1; i+=2){
             var startdate = datelist[i]
             var enddate = datelist[i+1]
-            console.log(d)
+            // enddate랑 endate+2의 데이터가 존재한다면 그사이 데이터도 dateragne에 넣기
+            // day 문자열을 가져와서 int값으로 변경하여 비교
+            // 한달 간격으로 예약하기 때문에 month는 비교안해도됨
+            // console.log(enddate.substr(-2))
+            if(datelist[i+2] != null){
+                var n1 = Number(enddate.substr(-2))
+                var n2 = Number(datelist[i+2].substr(-2))
+                if (n2-n1 == 2){
+                    var addDate = enddate.substr(0,8)+String((n1+1))
+                    // console.log("addDate : "+addDate)
+                    dateRange.push(addDate)
+                }
+
+            }
+            // date = new Date()
+            // setDate(date.getTime() + 86400000)
+            //checkin - checkout 날짜 x예약 startdate.setDate(startdate.getDate() + 1);
             for (var d = new Date(startdate); d <= new Date(enddate); d.setDate(d.getDate() + 1)) {
                 var year = d.getFullYear();
                 var month = ('0' + (d.getMonth() + 1)).slice(-2);
                 var day = ('0' + d.getDate()).slice(-2);
                 var strdate = year + '-' + month  + '-' + day;
                 dateRange.push(strdate);
-                // dateRange.push($.datepicker.dateFormat("yyyy-mm-dd", d));
+                
             }
-            
-            console.log(dateRange)
-        }
+        };
+        console.log(dateRange)
         return dateRange
     }
     
@@ -132,7 +145,7 @@
             language: "ko",  // 언어 : 한글
             startDate : startString,  // 예약 start date : today
             endDate : endstring,  // 예약 end date : today+29
-            beforeShowDay: disableDays
+            datesDisabled : disableDays() //예약된 날짜 비활성
              });
 
 
@@ -140,6 +153,19 @@
             $("#start").on('changeDate', function () {
                 var day = $("#start").val();
                 $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
+                //종료일을 현재 선택한 날짜부터 가장 최근에 비활성화된 날짜까지로 설정 
+                // ex. 18일 선택시 , 20일에 다른 예약이 다면 19일까지만 나오도록
+                // 선택한 날짜와 배열 daterange에 있는 날짜를 하나씩 비교해서 만약 daterange 요소가 더 큰 경우 비활성 
+                var bookingdate = disableDays()
+                for (var i =0; i<bookingdate.length; i++){
+                    var s = new Date($("#start").datepicker("getDate"));
+                    var e = new Date(bookingdate[i])
+                    if(s.getTime() < e.getTime()){
+                        $("#end").datepicker('setEndDate', bookingdate[i]);
+                        break;
+                    }
+                }
+
             });
             
             // 예약 종료 data picker 날짜 선택시
