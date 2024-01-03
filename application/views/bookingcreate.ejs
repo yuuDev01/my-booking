@@ -154,7 +154,7 @@
                 var day = $("#start").val();
                 $("#end").datepicker('setStartDate', day); // 종료일은 시작일보다 빠를 수 없다.
                 //종료일을 현재 선택한 날짜부터 가장 최근에 비활성화된 날짜까지로 설정 
-                // ex. 18일 선택시 , 20일에 다른 예약이 다면 19일까지만 나오도록
+                // ex. 18일 선택시 , 20일에 다른 예약이 있다면 19일까지만 나오도록
                 // 선택한 날짜와 배열 daterange에 있는 날짜를 하나씩 비교해서 만약 daterange 요소가 더 큰 경우 비활성 
                 var bookingdate = disableDays()
                 for (var i =0; i<bookingdate.length; i++){
