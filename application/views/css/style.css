@@ -1,0 +1,45 @@
+.container {
+    /* 가운데 정렬 */
+    /* display : flex;
+    justify-content: center;
+    align-items: center; */
+    display: grid;
+    place-content: center;
+    margin-top: 100px;
+}
+
+/* index 화면 */
+.idx {
+    background-color: yellow;
+    width: 500px;
+}
+.idxtitle{
+    background-color: green;
+    text-align: center;
+    /* background-color: antiquewhite; */
+    margin: 5px;
+}
+.idxtitle h2 {
+    background-color: rgb(95, 95, 205);
+    color: rgb(239, 239, 239);
+
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.idxtitle p{
+    color: rgb(35, 35, 35);
+    font-size: 16px;
+    font-weight: bold;
+}
+.idx form{
+    /* width: ; */
+    background-color: orange;
+}
+#loginbtn{
+
+}
+
+#joinbtn{
+
+}
