@@ -36,6 +36,12 @@
     /* width: ; */
     background-color: orange;
 }
+
+.idx form button{
+    width: 45%;
+    
+}
+
 #loginbtn{
 
 }
