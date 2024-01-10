@@ -18,8 +18,8 @@
         <div class="container idx">
             <br>
             <div class="idxtitle">    
-                    <h2>my booking</h2>
-                    <p>숙소 예약 프로그램</p>
+                    <p>my booking</p>
+                    <!-- <p>숙소 예약 프로그램</p> -->
             </div>
             <form action="/user/login" method="post">
                 <div class="form-floating">
@@ -31,8 +31,10 @@
                     <label for="userpw" class="form-label">PW</label>
                 </div>
                 <br>
-                <button formaction="/user/login" id="loginbtn" class="btn btn-primary">login</button>
-                <button formaction="/user/register" id="joinbtn" class="btn btn-warning">join</button>
+                <div class="d-flex gap-2">
+                    <button formaction="/user/login" id="loginbtn" class="btn btn btn-warning flex-fill">login</button>
+                    <button formaction="/user/register" id="joinbtn" class="btn btn-secondary flex-fill">join</button>
+                </div>
             </form>
         </div>
     </body>

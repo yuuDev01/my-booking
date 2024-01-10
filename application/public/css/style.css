@@ -1,0 +1,59 @@
+.container {
+    /* 가운데 정렬 */
+    /* display : flex;
+    justify-content: center;
+    align-items: center; */
+    display: grid;
+    place-content: center;
+    margin-top: 100px;
+}
+
+/* index 화면 */
+.idx {
+    /* background-color: yellow; */
+    width: 500px;
+    
+}
+.idxtitle{
+    text-align: center;
+    margin: 5px;
+}
+.idxtitle p {
+    background-color: rgb(95, 95, 205);
+    color: rgb(239, 239, 239);
+    font-weight: bold;
+    font-size: 25px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+
+.idx form{
+    width: 400px;
+    /* background-color: orange; */
+}
+
+.idx form .btn{
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 회원가입 */
+
+.signup{
+    width: 500px;
+    background-color: red;
+}
+
+.signup .title{
+    background-color: rgb(95, 95, 205);
+    /* color: rgb(239, 239, 239); */
+    font-weight: bold;
+    font-size: 25px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.signup form {
+    width: 500px;
+}
