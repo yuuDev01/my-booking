@@ -18,7 +18,7 @@ var memberRouter = require("./routers/member")
 
 
 // 미들웨어 등록부분
-// app.use(express.static(path.join(__dirname, "views")));
+app.use(express.static(path.join(__dirname, "views")));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
