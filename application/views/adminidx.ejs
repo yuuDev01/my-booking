@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <!-- css -->
+    <link href="/css/admin.css" rel="stylesheet">
     <!-- bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -17,30 +19,25 @@
 </head>
 
 <body>
-    <div class="header">
-        <a href="/user/logout" class="btn btn-outline-primary">로그아웃</a>
-        <p>관리자 <%=username %>님</p>
+    <div class="container idx">
+        <div class="idxtitle">    
+            <p>my booking</p>
+            <!-- <p>숙소 예약 프로그램</p> -->
     </div>
-    <div class="container side">
-        <a href="/admin/registeracm" class="btn btn-primary btn-lg">숙소등록</a><br><br>
-        <a href="/admin/myacm/<%= userid %>" class="btn btn-secondary btn-lg">등록한 숙소조회</a><br><br>
-        <a href="/admin/updateacm" class="btn btn-warning btn-lg">숙소수정</a><br><br>
-        <a href="/admin/deleteacm" class="btn btn-danger btn-lg">숙소삭제</a>
+        <div class="header">
+            <p>관리자 <%=username %>님</p>
+            <a href="/user/logout" class="btn btn-outline-primary">로그아웃</a>
+        </div>
+        <div class="main">
+            <a href="/admin/registeracm" class="btn btn-primary btn-lg">숙소등록</a>
+            <a href="/admin/myacm/<%= userid %>" class="btn btn-warning btn-lg">등록한 숙소조회</a>
+            <a href="/admin/updateacm" class="btn btn-primary btn-lg">숙소수정</a>
+            <a href="/admin/deleteacm" class="btn btn-warning btn-lg">숙소삭제</a>
+        </div>
+        <!-- <div class="main">
+
+        </div> -->
     </div>
-    <div class="container main"></div>
 </body>
-<style>
-    body {
-        padding: 30px;
-    }
-
-    .container {
-        padding: 10px
-    }
-
-    .side {
-        margin: 30px;
-    }
-</style>
 
 </html>
