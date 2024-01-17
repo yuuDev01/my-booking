@@ -6,8 +6,6 @@
 /* index 화면 */
 .idx {
     padding:10px 0 10px 0;
-
-
     width: 500px;
     border: 1px solid;
     display: flex; 
@@ -24,9 +22,7 @@
 }
 
 .idxtitle p {
-
-    
-         background-color: rgb(95, 95, 205);
+    background-color: rgb(95, 95, 205);
     color: rgb(239, 239, 239);
     font-weight: bold;
     font-size: 25px;
@@ -61,4 +57,13 @@
     margin-top: 10px;
     /* padding-top: 10px; */
     width: 200px;
+}
+
+/* 숙소 등록 */
+.acmregister{
+    width: 500px;
+}
+
+.acmregister form .btngroup{
+    float: right;
 }
