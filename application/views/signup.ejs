@@ -39,7 +39,14 @@
             </ul>
             <br>
             <input type="submit" class="btn btn-warning joinbtn" value="회원가입">
+            <input type="button"  id="btn_back" class="btn btn-warning backbtn" value="취소">
         </form>
     </div>
 </body>
 </html>
+<script>
+$("#btn_back").click(() => {
+  $("#result").empty()
+  location.href = '/';
+})
+</script>

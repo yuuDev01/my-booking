@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="container acmregister">
-        <div class="idxtitle">    
+        <div class="admintitle">    
             <p>숙소 등록</p>
             <!-- <p>숙소 예약 프로그램</p> -->
         </div>
@@ -60,17 +60,16 @@
             <br>
             <div class="btngroup">
                 <input type="submit" class="btn btn-primary" value="숙소 등록">
-                <input type="button" class="btn btn-warning" value="취소">
+                <input type="button" id="btn_back" class="btn btn-warning" value="취소">
             </div>
         </form>
     </div>
     
 </body>
 </html>
-<style>
-    .container {
-    margin-top: 40px;
-
-}
-
-</style>
+<script>
+    $("#btn_back").click(() => {
+      $("#result").empty()
+      location.href = '/';
+    })
+</script>
