@@ -3,6 +3,24 @@
     margin: 30px;
    
 }
+
+/* 공통 */
+
+/* 각 기능 타이틀 */
+.admintitle{
+    text-align: center;
+    width: 200px;
+}
+
+.admintitle p {
+    background-color: rgb(95, 95, 205);
+    color: rgb(239, 239, 239);
+    font-weight: bold;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
 /* index 화면 */
 .idx {
     padding:10px 0 10px 0;
